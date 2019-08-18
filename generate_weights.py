@@ -12,7 +12,7 @@ posts_processed = 0
 
 # cycle through all our posts
 # create frequency table for npos & tokens. 
-with open("data/posts.csv") as f:
+with open("data/prelim_posts.csv") as f:
   for post in csv.DictReader(f, fieldnames=["gender", "author", "body"]):
     tokens = word_tokenize(post["body"])
     tags = [co[1] for co in pos_tag(tokens)]
@@ -55,7 +55,7 @@ for key in npos_freq:
 
 
 # remove values with low total count. 
-token_freq = {k: token_freq[k] for k in token_freq if token_freq[k]["male"] > 50 and token_freq[k]["female"] > 50}
+token_freq = {k: token_freq[k] for k in token_freq if token_freq[k]["male"] > 25 and token_freq[k]["female"] > 25}
 npos_freq = {k: npos_freq[k] for k in npos_freq if npos_freq[k]["male"] > 15 and npos_freq[k]["female"] > 15}
 
 

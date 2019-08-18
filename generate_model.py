@@ -6,15 +6,11 @@ import math
 import os 
 
 # load training data. 
-chunks = np.load("data/chunks.npy")
+train = np.load("data/training_data.npy")
+np.random.shuffle(train)
 
-# shuffle it. 
-np.random.shuffle(chunks)
-
-# split into training and testing data. 
-split_at = math.floor(chunks.shape[0] * 0.6)
-test = chunks[split_at:]
-train = chunks[:split_at]
+test = np.load("data/testing_data.npy")
+np.random.shuffle(test)
 
 # split testing data into buckets. 
 buckets = {
@@ -29,7 +25,6 @@ buckets = {
 
 # split training data into x, y.  
 train_y, train_x = np.hsplit(train, [1]) 
-test_y, test_x = np.hsplit(test, [1])
 
 
 # define our sequential model. 
