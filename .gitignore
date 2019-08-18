@@ -1,0 +1,5 @@
+.DS_Store
+__pycache__
+.vscode
+data/posts.csv
+data/chunks.npy
