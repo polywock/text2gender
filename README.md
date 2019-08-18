@@ -5,7 +5,7 @@
 
 Trained on Reddit posts from r/AskMen and r/AskWomen. If I can say so myself, a clever, but abeit lazy way to get labelled data. Training was done on posts directly from those two subreddits, but this introduces its own set of biases. Maybe women who post on r/AskWomen write in a unique style inside of the subreddit, but not outside of it. To rectify this, you could instead find "women" users from the r/AskWomen, but look at their posts outside of r/AskWomen. Ideally, in a subreddit both men and women visit like r/AskReddit. 
 
-I took ~100K posts from /r/AskMen and /r/AskWomen. 60% was used to train, and the other 40% was used for testing. NO posts outside of these two subreddits was used. The accuracy rate must be further investigated for real world data. Do not trust this model. 
+I took ~130K posts from /r/AskMen and /r/AskWomen. 33% was used to train, 33% to test, and 33% to generate a masculinity map (a map of words with a score indicating how masculine it is). NO posts outside of these two subreddits was used. The accuracy rate must be further investigated for real world data. Do not trust this model.  
 
 |characters|accuracy|examples|
 |----|--------|--------|
@@ -14,7 +14,6 @@ I took ~100K posts from /r/AskMen and /r/AskWomen. 60% was used to train, and th
 |200 to 300|73.84%|1246|
 |300 to 500|74.55%|605|
 |500 to 1000|69.43%|193|
-|above 1000|90.48%|21|
 
 ## Use 
 1. Install [pipenv](https://github.com/pypa/pipenv) and learn how to use it. 
