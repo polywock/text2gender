@@ -45,6 +45,8 @@ model.fit(train_x, train_y, epochs=30)
 # evaluate with all the tests. 
 print("evaluation report\n---------------")
 for bucket in buckets:
+  if len(buckets[bucket]) == 0:
+    continue
   res = model.evaluate(buckets[bucket][:, 1:], buckets[bucket][:, :1], verbose=False)
   loss = f"{str(round(res[0], 2)).rjust(6)}"
   accuracy = f"{str(round(res[1] * 100, 2)).rjust(6)}%"
