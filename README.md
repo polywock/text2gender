@@ -25,7 +25,7 @@ I took ~130K posts from /r/AskMen and /r/AskWomen. 33% was used to train, 33% to
 1. Download required dependencies
 
     `pipenv install` to download required dependencies. 
-1. Predict gender from piping in a text file. This should print out a 0 to 1 value. Male if above 0.5, otherwise female. You could consider the 0.4 to 0.6 range as inconclusive. 
+1. Predict gender from piping in a text file. This should print out a 0 to 1 value. Male if above 0.5, otherwise female.
 
     `cat some_text.txt | pipenv run python3 predict.py`
 
