@@ -7,13 +7,15 @@ Trained on Reddit posts from r/AskMen and r/AskWomen. If I can say so myself, a 
 
 I took ~130K posts from /r/AskMen and /r/AskWomen. 33% was used to train, 33% to test, and 33% to generate a masculinity map (a map of words with a score indicating how masculine it is). NO posts outside of these two subreddits was used. The accuracy rate must be further investigated for real world data. Do not trust this model.  
 
-|characters|accuracy|examples|
+|tokens|accuracy|examples|
 |----|--------|--------|
-|below 100|65.24%|48650|
-|100 to 200|75.81%|5727|
-|200 to 300|73.84%|1246|
-|300 to 500|74.55%|605|
-|500 to 1000|69.43%|193|
+|all|68.92%|40086|
+|25 to 50|60.87%|207|
+|50 to 100|67.33%|22095|
+|100 to 200|69.97%|13049|
+|200 to 500|73.87%|4310|
+|500 to 1000|73.13%|387|
+|above 1000|77.14%|35|
 
 ## Use 
 1. Install [pipenv](https://github.com/pypa/pipenv) and learn how to use it. 

@@ -14,7 +14,7 @@ blacklist_count = 0
 saved_count = 0
 
 # comments below this threshold won't be included.
-COMMENT_LENGTH_MIN = 50
+COMMENT_LENGTH_MIN = 250
 
 BLACKLIST_TERMS = ["http", "removed", "submission"]
 AUTHOR_BLACKLIST = ["AutoModerator"]
