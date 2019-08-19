@@ -22,9 +22,21 @@ def transform(entry, output):
         chunks.append(y + x)
 
     chunks = np.array(chunks)
-    np.random.shuffle(chunks)
+
+    # TODO: Try to balance data sheet somewhere before.
+    men = chunks[chunks[:, 0] == 1]
+    women = chunks[chunks[:, 0] == 0]
+    maxx = min(len(men), len(women))
+    chunks = np.vstack([men[:maxx], women[:maxx]])
+
     np.save(output, chunks)
   except KeyboardInterrupt:
+    # get balanced datasheet. 
+    men = chunks[chunks[:, 0] == 1]
+    women = chunks[chunks[:, 0] == 0]
+    maxx = min(len(men), len(women))
+    chunks = np.vstack([men[:maxx], women[:maxx]])
+
     timestamp = datetime.now().timestamp()
     np.save(f"{output}_{timestamp}", chunks)
 

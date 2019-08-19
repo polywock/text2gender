@@ -48,7 +48,7 @@ train_y, train_x = np.hsplit(train, [1])
 
 # define our sequential model. 
 model = Sequential([
-  Dense(1, activation="sigmoid" , input_shape=train_x.shape[1:])
+  Dense(1, activation="sigmoid", input_shape=train_x.shape[1:])
 ])
 
 # compile to declare our optimization and loss. 
