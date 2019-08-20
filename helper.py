@@ -4,16 +4,16 @@ import json
 import re 
 import math
 
-def get_all_npos(tags, n):
-  n_pos = []
+def extract_npos(pos_list, n):
+  npos = []
   cache = []
-  for tag in tags:
+  for tag in pos_list:
     cache.append(tag)
     o = -1 
     while o >= -min(n, len(cache)):
-      n_pos.append(" ".join(cache[o:]))
+      npos.append(" ".join(cache[o:]))
       o -= 1
-  return n_pos
+  return npos
 
 
 def tokenize(text):
@@ -31,7 +31,7 @@ keys = {
 def get_comments(subreddits, authors=[], key=None, size=500):
   fb = requests.get(search_api, {
     "subreddit": ",".join(subreddits),
-    "authors": ",".join(authors),
+    "author": ",".join(authors),
     "before": keys.get(key) or "",
     "size": size,
     "sort": "desc"
@@ -52,28 +52,39 @@ def get_comments(subreddits, authors=[], key=None, size=500):
     "id": c["id"]
   } for c in comments]
 
+
 def contains_blacklist(text, blacklist):
   for v in blacklist:
     if text.find(v) != -1:
       return True
   return False
 
+
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))
 
-def chunk(arr, sections):
+
+# takes list and divides it into x sections.
+def chunk(arr, section_count):
   out = []
   start = 0
-  chunk_size = math.floor(len(arr) / sections)
-  for i in range(sections):
+  chunk_size = math.floor(len(arr) / section_count)
+  for i in range(section_count):
     lb = i * chunk_size
     rb = (i + 1) * chunk_size 
     
     # if last, get remaining.
-    if i == (sections - 1):
+    if i == (section_count - 1):
       rb = None 
 
     alpha = arr[lb:rb]  
     out.append(alpha)
 
   return out
+
+# turns table into list, sort it via sort_key, and subdivides into buckets. 
+def bucketize(table, sort_key, bucket_count):
+  list_of_items = list(table.items())
+  list_of_items.sort(key=sort_key)
+  chunks = chunk(list_of_items, bucket_count)
+  return [dict(chunk) for chunk in chunks]

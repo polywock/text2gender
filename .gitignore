@@ -1,9 +1,4 @@
 .DS_Store
 __pycache__
 .vscode
-data/prelim_posts.csv
-data/training_posts.csv
-data/testing_posts.csv
-data/training_data.npy
-data/testing_data.npy
 

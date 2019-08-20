@@ -1,49 +1,52 @@
-import csv 
 import helper
 import numpy as np 
 import features
 from datetime import datetime
+import sqlite3 
+import json 
 
-# transform data/<entry>.csv into data/<output>.npy
-def transform(entry, output):
-  chunks = []
-  try:
-    i = 0
-    with open(entry, "r") as f:
-      for post in csv.DictReader(f, fieldnames=["gender", "author", "body"]):
-        if i % 100 == 0:
-          print(i)
-        i += 1
-        # quick tokenize func to ensure we don't divide by 0. 
-        if len(helper.tokenize(post["body"])) == 0:
-          continue
-        x = features.get_features(post["body"])
-        y = [post["gender"] == "male"]
-        chunks.append(y + x)
+conn = sqlite3.connect("data.db")
+c = conn.cursor()
 
-    chunks = np.array(chunks)
+# ensure table "examples" exists
+try:
+  c.execute("""CREATE TABLE examples (
+    post_id text NOT NULL UNIQUE, 
+    male INTEGER NOT NULL,
+    x TEXT NOT NULL
+  );""")
+except sqlite3.OperationalError as e:
+  if str(e) != "table examples already exists":
+    raise e
 
-    # TODO: Try to balance data sheet somewhere before.
-    men = chunks[chunks[:, 0] == 1]
-    women = chunks[chunks[:, 0] == 0]
-    maxx = min(len(men), len(women))
-    chunks = np.vstack([men[:maxx], women[:maxx]])
+male_count = 0
+female_count = 0
 
-    np.save(output, chunks)
-  except KeyboardInterrupt:
-    # get balanced datasheet. 
-    men = chunks[chunks[:, 0] == 1]
-    women = chunks[chunks[:, 0] == 0]
-    maxx = min(len(men), len(women))
-    chunks = np.vstack([men[:maxx], women[:maxx]])
+try:
+  index = 0
+  while True:
+    if (male_count + female_count) % 100 == 0:
+      conn.commit()
+      print(f"m: {male_count}, f: {female_count}")
 
-    timestamp = datetime.now().timestamp()
-    np.save(f"{output}_{timestamp}", chunks)
+    c.execute("SELECT id, male, body FROM posts ORDER BY ROWID ASC LIMIT ? OFFSET ?;", (500, index * 500))
+    posts = c.fetchall()
+    if len(posts) == 0:
+      print(f"No more posts for {gender}.")
+      conn.commit()
+      exit()
+    for post in posts:
+      post_id = post[0]
+      is_male = post[1]
+      body = post[2] 
 
-  
-
-# get training posts
-transform("data/training_posts.csv", "data/training_data.npy")
-
-# get testing posts
-transform("data/testing_posts.csv", "data/testing_data.npy")
+      x = features.extract_features(body)
+      c.execute("INSERT INTO examples VALUES (?, ?, ?);", (post_id, is_male, json.dumps(x)))
+      if is_male:
+        male_count += 1
+      else:
+        female_count += 1
+    index += 1
+except KeyboardInterrupt:
+  conn.commit()
+    

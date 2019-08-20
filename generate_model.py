@@ -4,46 +4,27 @@ from keras.optimizers import Adam
 import numpy as np 
 import math
 import os 
+import sqlite3 
+import json
 
-# load training data. 
-train = np.load("data/training_data.npy")
+TRAINING_COUNT = 25_000
+TESTING_COUNT = 100_000
+
+conn = sqlite3.connect("data.db")
+c = conn.cursor()
+
+def load_examples(offset, limit, is_male):
+  c.execute("SELECT male, x FROM examples WHERE male = ? ORDER BY ROWID ASC LIMIT ? OFFSET ?;", (int(is_male), limit, offset))
+  return [[v[0]] + json.loads(v[1]) for v in c.fetchall()]
+
+m_train = load_examples(0, TRAINING_COUNT, True)
+f_train = load_examples(0, TRAINING_COUNT, False)
+train = np.concatenate([m_train, f_train], axis=0)
 np.random.shuffle(train)
-
-test = np.load("data/testing_data.npy")
-np.random.shuffle(test)
-
-# split testing data into buckets. 
-test_male = test[test[:,0] == 1]
-test_female = test[test[:,0] == 0]
-
-buckets = {
-  "all": test,
-  "25 to 50": test[(test[:, -10] >= 25) & (test[:, -10] < 50)],
-  "50 to 100": test[(test[:, -10] >= 50) & (test[:, -10] < 100)],
-  "100 to 200": test[(test[:, -10] >= 100) & (test[:, -10] < 200)],
-  "200 to 500": test[(test[:, -10] >= 200) & (test[:, -10] < 500)],
-  "500 to 1000": test[(test[:, -10] >= 500) & (test[:, -10] < 1000)],
-  "above 1000": test[test[:, -10] >= 1000],
-
-  "male all": test_male,
-  "male 25 to 50": test_male[(test_male[:, -10] >= 25) & (test_male[:, -10] < 50)],
-  "male 50 to 100": test_male[(test_male[:, -10] >= 50) & (test_male[:, -10] < 100)],
-  "male 100 to 200": test_male[(test_male[:, -10] >= 100) & (test_male[:, -10] < 200)],
-  "male 200 to 500": test_male[(test_male[:, -10] >= 200) & (test_male[:, -10] < 500)],
-  "male 500 to 1000": test_male[(test_male[:, -10] >= 500) & (test_male[:, -10] < 1000)],
-  "male above 1000": test_male[test_male[:, -10] >= 1000],
-
-  "female all": test_female,
-  "female 25 to 50": test_female[(test_female[:, -10] >= 25) & (test_female[:, -10] < 50)],
-  "female 50 to 100": test_female[(test_female[:, -10] >= 50) & (test_female[:, -10] < 100)],
-  "female 100 to 200": test_female[(test_female[:, -10] >= 100) & (test_female[:, -10] < 200)],
-  "female 200 to 500": test_female[(test_female[:, -10] >= 200) & (test_female[:, -10] < 500)],
-  "female 500 to 1000": test_female[(test_female[:, -10] >= 500) & (test_female[:, -10] < 1000)],
-  "female above 1000": test_female[test_female[:, -10] >= 1000],
-}
+del m_train, f_train
 
 # split training data into x, y.  
-train_y, train_x = np.hsplit(train, [1]) 
+train_y, train_x = train[:, :1], train[:, 1:]
 
 
 # define our sequential model. 
@@ -60,6 +41,44 @@ model.compile(
 
 # train with the training data. 
 model.fit(train_x, train_y, epochs=15)
+del train
+
+
+# testing 
+m_test = load_examples(TRAINING_COUNT, TESTING_COUNT, True)
+f_test = load_examples(TRAINING_COUNT, TESTING_COUNT, False)
+test = np.concatenate([m_test, f_test], axis=0)
+np.random.shuffle(test)
+
+m_test = test[test[:, 0] == 1]
+f_test = test[test[:, 0] == 0]
+
+buckets = {
+  "all": test,
+  "25 to 50": test[(test[:, -10] >= 25) & (test[:, -10] < 50)],
+  "50 to 100": test[(test[:, -10] >= 50) & (test[:, -10] < 100)],
+  "100 to 200": test[(test[:, -10] >= 100) & (test[:, -10] < 200)],
+  "200 to 500": test[(test[:, -10] >= 200) & (test[:, -10] < 500)],
+  "500 to 1000": test[(test[:, -10] >= 500) & (test[:, -10] < 1000)],
+  "above 1000": test[test[:, -10] >= 1000],
+
+  "male all": m_test,
+  "male 25 to 50": m_test[(m_test[:, -10] >= 25) & (m_test[:, -10] < 50)],
+  "male 50 to 100": m_test[(m_test[:, -10] >= 50) & (m_test[:, -10] < 100)],
+  "male 100 to 200": m_test[(m_test[:, -10] >= 100) & (m_test[:, -10] < 200)],
+  "male 200 to 500": m_test[(m_test[:, -10] >= 200) & (m_test[:, -10] < 500)],
+  "male 500 to 1000": m_test[(m_test[:, -10] >= 500) & (m_test[:, -10] < 1000)],
+  "male above 1000": m_test[m_test[:, -10] >= 1000],
+
+  "female all": f_test,
+  "female 25 to 50": f_test[(f_test[:, -10] >= 25) & (f_test[:, -10] < 50)],
+  "female 50 to 100": f_test[(f_test[:, -10] >= 50) & (f_test[:, -10] < 100)],
+  "female 100 to 200": f_test[(f_test[:, -10] >= 100) & (f_test[:, -10] < 200)],
+  "female 200 to 500": f_test[(f_test[:, -10] >= 200) & (f_test[:, -10] < 500)],
+  "female 500 to 1000": f_test[(f_test[:, -10] >= 500) & (f_test[:, -10] < 1000)],
+  "female above 1000": f_test[f_test[:, -10] >= 1000],
+}
+
 
 # evaluate with all the tests. 
 print("evaluation report\n---------------")
