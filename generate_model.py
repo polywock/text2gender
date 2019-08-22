@@ -8,17 +8,23 @@ import sqlite3
 import json
 
 TRAINING_COUNT = 25_000
-TESTING_COUNT = 100_000
+TESTING_COUNT = 25_000
 
 conn = sqlite3.connect("data.db")
 c = conn.cursor()
 
 def load_examples(offset, limit, is_male):
   c.execute("SELECT male, x FROM examples WHERE male = ? ORDER BY ROWID ASC LIMIT ? OFFSET ?;", (int(is_male), limit, offset))
-  return [[v[0]] + json.loads(v[1]) for v in c.fetchall()]
+  examples = []
+  for row in c.fetchall():
+    x = np.array(json.loads(row[1]))[0:10]
+    y = [row[0]]
+    examples.append(y + list(x))
 
-m_train = load_examples(0, TRAINING_COUNT, True)
-f_train = load_examples(0, TRAINING_COUNT, False)
+  return examples
+
+m_train = load_examples(0, round(TRAINING_COUNT / 2), True)
+f_train = load_examples(0, round(TRAINING_COUNT / 2), False)
 train = np.concatenate([m_train, f_train], axis=0)
 np.random.shuffle(train)
 del m_train, f_train
@@ -27,15 +33,17 @@ del m_train, f_train
 train_y, train_x = train[:, :1], train[:, 1:]
 
 
+
 # define our sequential model. 
 model = Sequential([
+  # Dense(10, activation="relu", input_shape=train_x.shape[1:]),
   Dense(1, activation="sigmoid", input_shape=train_x.shape[1:])
 ])
 
 # compile to declare our optimization and loss. 
 model.compile(
   optimizer="adam",
-  loss="mse", #"binary_crossentropy",
+  loss="mse", # "binary_crossentropy",
   metrics=["accuracy"]
 )
 
@@ -45,10 +53,13 @@ del train
 
 
 # testing 
-m_test = load_examples(TRAINING_COUNT, TESTING_COUNT, True)
-f_test = load_examples(TRAINING_COUNT, TESTING_COUNT, False)
+m_test = load_examples(round(TRAINING_COUNT / 2), round(TESTING_COUNT / 2), True)
+f_test = load_examples(round(TRAINING_COUNT / 2), round(TESTING_COUNT / 2), False)
 test = np.concatenate([m_test, f_test], axis=0)
 np.random.shuffle(test)
+
+print(model.evaluate(test[:, 1:], test[:, :1]))
+exit()
 
 m_test = test[test[:, 0] == 1]
 f_test = test[test[:, 0] == 0]

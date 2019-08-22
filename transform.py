@@ -23,13 +23,14 @@ male_count = 0
 female_count = 0
 
 try:
-  index = 0
+  index = -1
   while True:
+    index += 1
     if (male_count + female_count) % 100 == 0:
       conn.commit()
       print(f"m: {male_count}, f: {female_count}")
 
-    c.execute("SELECT id, male, body FROM posts ORDER BY ROWID ASC LIMIT ? OFFSET ?;", (500, index * 500))
+    c.execute("SELECT id, male, body FROM posts WHERE length(body) > 250 ORDER BY ROWID DESC LIMIT ? OFFSET ?;", (500, index * 500))
     posts = c.fetchall()
     if len(posts) == 0:
       print(f"No more posts for {gender}.")
@@ -46,7 +47,6 @@ try:
         male_count += 1
       else:
         female_count += 1
-    index += 1
 except KeyboardInterrupt:
   conn.commit()
     

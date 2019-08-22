@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b45f2578f6ffe1b6aca050e38fb3acc85373e9fe1df934a9d3acd681d086cf22"
+            "sha256": "b45d85c10f8ec70e36bb61ae9f32635b1a012cc29ed319d31840d502ece254cc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -37,13 +37,6 @@
             ],
             "version": "==2.8"
         },
-        "nltk": {
-            "hashes": [
-                "sha256:764c20a5f8532a681c261af3c7d1a54768a35df6f3603df75e615cbd34e47cb5"
-            ],
-            "index": "pypi",
-            "version": "==3.4.4"
-        },
         "numpy": {
             "hashes": [
                 "sha256:03e311b0a4c9f5755da7d52161280c6a78406c7be5c5cc7facfbcebb641efb7e",
@@ -73,13 +66,6 @@
             ],
             "index": "pypi",
             "version": "==2.22.0"
-        },
-        "six": {
-            "hashes": [
-                "sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c",
-                "sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
-            ],
-            "version": "==1.12.0"
         },
         "urllib3": {
             "hashes": [
@@ -216,6 +202,12 @@
             ],
             "version": "==3.1.1"
         },
+        "nltk": {
+            "hashes": [
+                "sha256:bed45551259aa2101381bbdd5df37d44ca2669c5c3dad72439fa459b29137d94"
+            ],
+            "version": "==3.4.5"
+        },
         "numpy": {
             "hashes": [
                 "sha256:03e311b0a4c9f5755da7d52161280c6a78406c7be5c5cc7facfbcebb641efb7e",
@@ -344,6 +336,14 @@
                 "sha256:1d6d69ce66211143803fbc56652b41d73b4a400a2891d7bf7a1cdf4c02de613b"
             ],
             "version": "==1.1.0"
+        },
+        "textblob": {
+            "hashes": [
+                "sha256:7ff3c00cb5a85a30132ee6768b8c68cb2b9d76432fec18cd1b3ffe2f8594ec8c",
+                "sha256:b0eafd8b129c9b196c8128056caed891d64b7fa20ba570e1fcde438f4f7dd312"
+            ],
+            "index": "pypi",
+            "version": "==0.15.3"
         },
         "werkzeug": {
             "hashes": [

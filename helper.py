@@ -4,16 +4,16 @@ import json
 import re 
 import math
 
-def extract_npos(pos_list, n):
-  npos = []
+def extract_ngrams(gram_list, n, join_fn=lambda x: " ".join(x)):
+  ngrams = []
   cache = []
-  for tag in pos_list:
+  for tag in gram_list:
     cache.append(tag)
     o = -1 
     while o >= -min(n, len(cache)):
-      npos.append(" ".join(cache[o:]))
+      ngrams.append(join_fn(cache[o:]))
       o -= 1
-  return npos
+  return ngrams
 
 
 def tokenize(text):
@@ -88,3 +88,11 @@ def bucketize(table, sort_key, bucket_count):
   list_of_items.sort(key=sort_key)
   chunks = chunk(list_of_items, bucket_count)
   return [dict(chunk) for chunk in chunks]
+
+
+def equalize(table, key_a, key_b):
+  a_count = sum([table[k][key_a] for k in table])
+  b_count = sum([table[k][key_b] for k in table])
+  equalizer = a_count / b_count
+  for key in table:
+    table[key][key_b] = round(table[key][key_b] * equalizer)

@@ -6,11 +6,11 @@ verify_ssl = true
 [dev-packages]
 tensorflow = "*"
 keras = "*"
+textblob = "*"
 
 [packages]
 numpy = "*"
 requests = "*"
-nltk = "*"
 
 [requires]
 python_version = "3.7"

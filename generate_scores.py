@@ -1,36 +1,50 @@
 
-from nltk import word_tokenize, pos_tag
 import csv 
 import re 
 import helper
 import json
 import os 
 import sqlite3
+from textblob.en.taggers import PatternTagger
+from textblob.tokenizers import WordTokenizer
 
-token_freq = {}
+tk = WordTokenizer()
+tagger = PatternTagger()
+
+
+keys = []
+def key_to_int(key):
+  try:
+    return keys.index(key) 
+  except ValueError:
+    keys.append(key)
+    return len(keys) - 1
+
+ntoken_freq = {}
 npos_freq = {}
 
 conn = sqlite3.connect("data.db")
 c = conn.cursor()
 
-TOKEN_USAGE_MINIMUM = 50 
-NPOS_USAGE_MINIMUM = 15
+USAGE_MINIMUM = 15
 MAX_NPOS = 5 # Like n-gram, but n-pos. 
+NTOKENS_PURGE_THRESHOLD = 5E6
 POST_CHAR_LIMIT = 100
 POSTS_PER_CYCLE = 500
 
 # used to track progress
 posts_processed = 0
 
+
+
 # cycle through our posts.
 # create masculinity scores for npos & tokens. 
 def gather_freq():
-  global posts_processed, token_freq, npos_freq
+  global posts_processed, npos_freq, ntoken_freq
   index = 0
   while True:
     index += 1
     for gender in ["male", "female"]:
-      
       # get the body's of 500 posts from database. 
       c.execute(f"SELECT body FROM posts WHERE length(body) > ? AND male = ? LIMIT ? OFFSET ?;", (POST_CHAR_LIMIT, int(gender == "male"), POSTS_PER_CYCLE, index * POSTS_PER_CYCLE))
       posts = c.fetchall()
@@ -40,78 +54,61 @@ def gather_freq():
         return
 
       for post in posts:
-        # tokenize 
-        tokens = word_tokenize(post[0])
+        tokens = tk.tokenize(post[0].lower())
+        pos_list = [co[1] for co in tagger.tag(post[0])]
+
+        all_npos = helper.extract_ngrams(pos_list, 5)
+        all_ntokens = helper.extract_ngrams([key_to_int(token) for token in tokens], 5, lambda x: tuple(x))
+
+        for npos in all_npos:
+          npos_freq[npos] = npos_freq.get(npos, {"male": 0, "female": 0})
+          npos_freq[npos][gender] += 1
+
+        for ntoken in all_ntokens:
+          ntoken_freq[ntoken] = ntoken_freq.get(ntoken, {"male": 0, "female": 0})
+          ntoken_freq[ntoken][gender] += 1
+
+        if len(ntoken_freq) > NTOKENS_PURGE_THRESHOLD:
+          print("NTOKEN PURGING!")
+          ntoken_freq = {k: ntoken_freq[k] for k in ntoken_freq if ntoken_freq[k]["male"] > USAGE_MINIMUM and ntoken_freq[k]["female"] > USAGE_MINIMUM}
         
-        # turn tokens into POS tags. 
-        tags = [co[1] for co in pos_tag(tokens)]
-
-        # Extract n-grams from it 
-        all_npos = helper.extract_npos(tags, 5)
-
-        # lowercase after feeding it to get_all_npos, because nltk's pos-tag uses casing to determine proper nouns, etc. 
-        # but we do not want our tokens to be case sensitive to avoid redundant variants. Eg. "she" and "She".
-        tokens = [token.lower() for token in tokens]
-
-        for token in tokens:
-          token_freq[token] = token_freq.get(token, {"male": 0, "female": 0})
-          token_freq[token][gender] += 1
-
-        for n_pos in all_npos:
-          npos_freq[n_pos] = npos_freq.get(n_pos, {"male": 0, "female": 0})
-          npos_freq[n_pos][gender] += 1
-
         posts_processed += 1
         if posts_processed % 100 == 0:
-          print(posts_processed)
+          print(posts_processed, len(npos_freq), len(ntoken_freq))
 
 try:
   gather_freq()
 except KeyboardInterrupt:
   pass
 
-print(f"{len(token_freq)} tokens gathered.")
+
 print(f"{len(npos_freq)} npos gathered.")
+print(f"{len(ntoken_freq)} ntokens gathered.")
 
-# Equalize token_freq to acount for quantity differences. 
-male_count = sum([token_freq[k]["male"] for k in token_freq])
-female_count = sum([token_freq[k]["female"] for k in token_freq])
-equalizer = male_count / female_count
-
-for key in token_freq:
-  token_freq[key] = {
-    "male": token_freq[key]["male"],
-    "female": round(token_freq[key]["female"] * equalizer)
-  }
-
-# Equalize npos_freq to acount for quantity differences. 
-male_count = sum([npos_freq[k]["male"] for k in npos_freq])
-female_count = sum([npos_freq[k]["female"] for k in npos_freq])
-equalizer = male_count / female_count
-for key in npos_freq:
-  npos_freq[key] = {
-    "male": npos_freq[key]["male"],
-    "female": round(npos_freq[key]["female"] * equalizer)
-  }
-
+# If male total is 200, female total 400, all values for females will be multiplied by 0.5
+helper.equalize(npos_freq, "male", "female")
+helper.equalize(ntoken_freq, "male", "female")
 
 # remove values with low total count. 
-token_freq = {k: token_freq[k] for k in token_freq if token_freq[k]["male"] > TOKEN_USAGE_MINIMUM and token_freq[k]["female"] > TOKEN_USAGE_MINIMUM}
-npos_freq = {k: npos_freq[k] for k in npos_freq if npos_freq[k]["male"] > NPOS_USAGE_MINIMUM and npos_freq[k]["female"] > NPOS_USAGE_MINIMUM}
+npos_freq = {k: npos_freq[k] for k in npos_freq if npos_freq[k]["male"] > USAGE_MINIMUM and npos_freq[k]["female"] > USAGE_MINIMUM}
+ntoken_freq = {k: ntoken_freq[k] for k in ntoken_freq if ntoken_freq[k]["male"] > USAGE_MINIMUM and ntoken_freq[k]["female"] > USAGE_MINIMUM}
 
-print(f"{len(token_freq)} tokens kept.")
+ntoken_freq = {" ".join([keys[v] for v in k]): ntoken_freq[k] for k in ntoken_freq}
+
 print(f"{len(npos_freq)} npos kept.")
-
-for key in token_freq:
-  token_freq[key]["score"] = token_freq[key]["male"] / (token_freq[key]["male"] + token_freq[key]["female"]) * 2 - 1
+print(f"{len(ntoken_freq)} ntokens kept.")
 
 for key in npos_freq:
   npos_freq[key]["score"] = npos_freq[key]["male"] / (npos_freq[key]["male"] + npos_freq[key]["female"]) * 2 - 1
 
+for key in ntoken_freq:
+  ntoken_freq[key]["score"] = ntoken_freq[key]["male"] / (ntoken_freq[key]["male"] + ntoken_freq[key]["female"]) * 2 - 1
+
 os.makedirs("data", exist_ok=True)
 
-with open("data/token_scores.json", "w+") as f:
-  f.write(json.dumps(token_freq))
 
 with open("data/npos_scores.json", "w+") as f:
   f.write(json.dumps(npos_freq))
+
+with open("data/ntoken_scores.json", "w+") as f:
+  f.write(json.dumps(ntoken_freq))
