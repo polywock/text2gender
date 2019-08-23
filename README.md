@@ -7,18 +7,25 @@ Trained on Reddit posts from r/AskMen and r/AskWomen. If I can say so myself, a 
 
 The accuracy rate must be further investigated for real world data. 
 
-|tokens|accuracy|examples|
+|length|accuracy|examples|
 |----|--------|--------|
-|all|68.48%|34374|
-|25 to 50|58.66%|179|
-|50 to 100|67.02%|19084|
-|100 to 200|69.58%|11163|
-|200 to 500|72.83%|3596|
-|500 to 1000|73.21%|321|
-|above 1000|75.0%|28|
+|< 250|67.44%|48481|
+|200 to 500|65.91%|30715|
+|500 to 1000|69.21%|13600|
+|1000 to 2000|72.47%|3654|
+|> 2000|75.63%|599|
 |-|-|-|
-|male all|69.14%|17187|
-|female all|67.81%|17187|
+|male below 250|67.13%|23527|
+|male 200 to 500|65.49%|15275|
+|male 500 to 1000|68.72%|6346|
+|male 1000 to 2000|74.03%|1656|
+|male above 2000|78.67%|286|
+|-|-|-|
+|female below 250|67.74%|24954|
+|female 200 to 500|66.33%|15440|
+|female 500 to 1000|69.63%|7254|
+|female 1000 to 2000|71.17%|1998|
+|female above 2000|72.84%|313|
 
 ## Use 
 1. Install [pipenv](https://github.com/pypa/pipenv) and learn how to use it. 

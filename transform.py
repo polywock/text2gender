@@ -1,7 +1,4 @@
-import helper
-import numpy as np 
 import features
-from datetime import datetime
 import sqlite3 
 import json 
 
@@ -12,6 +9,7 @@ c = conn.cursor()
 try:
   c.execute("""CREATE TABLE examples (
     post_id text NOT NULL UNIQUE, 
+    body_length INTEGER NOT NULL,
     male INTEGER NOT NULL,
     x TEXT NOT NULL
   );""")
@@ -28,9 +26,9 @@ try:
     index += 1
     if (male_count + female_count) % 100 == 0:
       conn.commit()
-      print(f"m: {male_count}, f: {female_count}")
+      print(f"a: {male_count + female_count}, m: {male_count}, f: {female_count}")
 
-    c.execute("SELECT id, male, body FROM posts WHERE length(body) > 250 ORDER BY ROWID DESC LIMIT ? OFFSET ?;", (500, index * 500))
+    c.execute("SELECT id, male, body FROM posts WHERE length(body) > 150 ORDER BY ROWID DESC LIMIT ? OFFSET ?;", (500, index * 500))
     posts = c.fetchall()
     if len(posts) == 0:
       print(f"No more posts for {gender}.")
@@ -42,7 +40,7 @@ try:
       body = post[2] 
 
       x = features.extract_features(body)
-      c.execute("INSERT INTO examples VALUES (?, ?, ?);", (post_id, is_male, json.dumps(x)))
+      c.execute("INSERT INTO examples VALUES (?, ?, ?, ?);", (post_id, len(body), is_male, json.dumps(x)))
       if is_male:
         male_count += 1
       else:
