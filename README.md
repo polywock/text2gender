@@ -9,23 +9,23 @@ The accuracy rate must be further investigated for real world data.
 
 |length|accuracy|examples|
 |----|--------|--------|
-|< 250|67.44%|48481|
-|200 to 500|65.91%|30715|
-|500 to 1000|69.21%|13600|
-|1000 to 2000|72.47%|3654|
-|> 2000|75.63%|599|
+|< 250|67.56%|48481|
+|200 to 500|66.02%|30715|
+|500 to 1000|69.22%|13600|
+|1000 to 2000|72.99%|3654|
+|> 2000|76.96%|599|
 |-|-|-|
-|male below 250|67.13%|23527|
-|male 200 to 500|65.49%|15275|
-|male 500 to 1000|68.72%|6346|
-|male 1000 to 2000|74.03%|1656|
-|male above 2000|78.67%|286|
+|male below 250|65.98%|23527|
+|male 200 to 500|65.2%|15275|
+|male 500 to 1000|66.51%|6346|
+|male 1000 to 2000|69.99%|1656|
+|male above 2000|73.08%|286|
 |-|-|-|
-|female below 250|67.74%|24954|
-|female 200 to 500|66.33%|15440|
-|female 500 to 1000|69.63%|7254|
-|female 1000 to 2000|71.17%|1998|
-|female above 2000|72.84%|313|
+|female below 250|69.06%|24954|
+|female 200 to 500|66.83%|15440|
+|female 500 to 1000|71.59%|7254|
+|female 1000 to 2000|75.48%|1998|
+|female above 2000|80.51%|313|
 
 ## Use 
 1. Install [pipenv](https://github.com/pypa/pipenv) and learn how to use it. 
