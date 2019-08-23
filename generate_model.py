@@ -23,7 +23,6 @@ def load_examples(offset, limit, is_male, minn=None, maxx=None):
     if maxx and row[2] > maxx:
       continue
     x = json.loads(row[1])
-    x = x[0] + x[1]
     y = [row[0]]
 
     examples.append(y + list(x))
