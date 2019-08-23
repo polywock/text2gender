@@ -31,7 +31,7 @@ try:
     c.execute("SELECT id, male, body FROM posts WHERE length(body) > 150 ORDER BY ROWID DESC LIMIT ? OFFSET ?;", (500, index * 500))
     posts = c.fetchall()
     if len(posts) == 0:
-      print(f"No more posts for {gender}.")
+      print(f"No more posts.")
       conn.commit()
       exit()
     for post in posts:
