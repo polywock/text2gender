@@ -6,12 +6,12 @@ verify_ssl = true
 [dev-packages]
 tensorflow = "*"
 keras = "*"
-textblob = "*"
 
 [packages]
 numpy = "*"
 requests = "*"
 matplotlib = "*"
+textblob = "*"
 
 [requires]
 python_version = "3.7"
