@@ -48,8 +48,8 @@ The accuracy rate must be further investigated for real world data.
 1. Install required NLTK data.
 
     `pipenv run python3 -m textblob.download_corpora lite`
-1. `pipenv run python3 download.py` to download Reddit posts using the PushShift API. This goes on forever until your interrupt the process. I recommend around ~150k posts. The posts are saved to `data.db`  using sqlite3 under a "posts" table. 
-1. Run `pipenv run python3 transform.py` to transform the posts into training data. Output will be stored in `data.db` under the `examples` table. This goes on forever until you interrupt it. 
+1. `pipenv run python3 download.py` to download Reddit posts using the PushShift API. This goes on forever until your interrupt the process. I recommend around ~200k posts. The posts are saved to `data.db`  using sqlite3 under a "posts" table. 
+1. Run `pipenv run python3 transform.py` to transform the posts into training data. Output will be stored in `data.db` under the `examples` table. 
 1. Run `pipenv run python3 generate_model.py` to train and test the model. The model weights will be saved to `data/model_weights.json` and `data/model_biases.json`.
 1. Predict gender by piping in a text file.
     `cat some_text.txt | pipenv run python3 predict.py`
